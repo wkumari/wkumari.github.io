@@ -10,3 +10,4 @@ script/cibuild
 script/release
 script/server
 script/validate-html
+.vscode/settings.json
