@@ -9,6 +9,7 @@ work is what visibility one can get into DNS from the root servers.
 - [QNAME Minimization](#qname-minimization)
 - [Aggressive NSEC](#aggressive-nsec)
 - [LocalRoot](#localroot)
+- [Caching](#caching)
   - [Todo](#todo)
   -
 
@@ -58,6 +59,21 @@ exist either.
 By design, a resolver that is configured to use LocalRoot will not send queries
 to the root servers, and so queries sent to these resolvers will not be
 visible in root server logs.
+
+
+## Caching
+One of the largest sources of DNS information hiding is the caching built into
+the DNS protocol itself. When someone looks up a name (e.g www.example.com), the resolver will first check the cache for the answer. If it has the answer
+in the cache, it will return it. If the answer is not already cached, the
+resolver will try and resolve the name, starting from the most specific answer
+that it **does** know, and will then cache all of the answers that it collected
+while resolving the name. This will include caching the answers for .com (for
+the TTL - 172800 seconds). This caching means that any additional queries for
+www.example.com, or foo.example.com, or **any other subdomains** of .com will
+not be sent to the root servers.
+
+In the case that a query is sent for a name that
+
 
 ### Todo
 Additional causes - write these up.
