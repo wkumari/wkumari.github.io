@@ -47,9 +47,17 @@ post.			86400	IN	RRSIG	NSEC 8 1 86400 20220311170000 20220226160000 9799 . dNxQV
 
 ```
 
+This means that a query for a name that is not in a delegated TLD (e.g example.potato) will not be sent to the root servers - in fact, the resolver won't
+send any queries at all - it already knows that .potato doesn't exist (nothing
+exists between .post and .pr), and so, by definition, exmaple.foobar doesn't
+exist either.
+
 ## LocalRoot
 [RFC8806 - Running a Root Server Local to a Resolver](https://datatracker.ietf.org/doc/rfc8806/) describes a method for the operator of a recursive resolver to have a complete root zone locally and to hide queries for the root zone from outsiders. This mechanism is often called LocalRoot or "[Hyperlocal root service](https://www.icann.org/en/system/files/files/octo-027-25aug21-en.pdf)", and is implementable in most major recursive resolver software (BIND, Knot, Microsoft Windows Server 2012, Unbound, etc).
 
+By design, a resolver that is configured to use LocalRoot will not send queries
+to the root servers, and so queries sent to these resolvers will not be
+visible in root server logs.
 
 ### Todo
 Additional causes - write these up.
