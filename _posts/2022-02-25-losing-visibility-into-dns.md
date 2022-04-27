@@ -15,7 +15,7 @@ work is what visibility one can get into DNS from the root servers.
 (originally published in 2016) only sends the minimum required part of the query name to the authoritative servers.
 
 
-/Without/ QNAME Minimization (assuming an empty cache), a recursive server will send the full query name (www.foo.example.com) to the root servers, and the full query name to the .com authoritative servers, and the full query name  to the example.com authoritative servers. This leaks a potentially sensitive information about the query name to the root servers, and the .com servers. There is no reason that the root needs know anything further than the TLD, nor any reason that the .com servers need to know anything further than example.com.
+*Without* QNAME Minimization (assuming an empty cache), a recursive server will send the full query name (www.foo.example.com) to the root servers, and the full query name to the .com authoritative servers, and the full query name  to the example.com authoritative servers. This leaks a potentially sensitive information about the query name to the root servers, and the .com servers. There is no reason that the root needs know anything further than the TLD, nor any reason that the .com servers need to know anything further than example.com.
 
 With QNAME Minimization thw resolver limits the root query to only ask where .com is, and then it will ask the .com servers for the authoritative servers for example.com, before finally asking the example.com servers for the answer for www.foo.example.com.
 
