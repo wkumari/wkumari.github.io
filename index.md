@@ -1,9 +1,8 @@
 ---
 layout: home
 ---
-This is my quick reference site. It's a place for me to put up
-small bits of documentation, reminders to myself, quick snippets for cutting and
-pasting, and so on. Basically, anything that doesn't seem worth adding it to a more fully featured CMS.
+This is a place for small bits of documentation, reminders to myself, quick snippets for cutting and pasting, and so on.
+Basically, anything that doesn't seem worth adding it to a more fully featured CMS.
 
 ## Networking:
 
