@@ -3,15 +3,12 @@ layout: post
 ---
 
 # Sources of DNS information hiding <!-- omit in toc -->
+{: .no_toc}
 One of the recurring discussions in the [NCAP](https://www.icann.org/en/announcements/details/icann-publishes-name-collision-analysis-project-ncap-study-2-documents-27-1-2022-en)
 work is what visibility one can get into DNS from the root servers.
 
-- [QNAME Minimization](#qname-minimization)
-- [Aggressive NSEC](#aggressive-nsec)
-- [LocalRoot](#localroot)
-- [Caching](#caching)
-  - [Todo](#todo)
-  -
+* TOC
+{:toc}
 
 ## QNAME Minimization
 [DNS Query Name Minimisation to Improve Privacy](https://datatracker.ietf.org/doc/rfc9156/)
@@ -50,7 +47,7 @@ post.			86400	IN	RRSIG	NSEC 8 1 86400 20220311170000 20220226160000 9799 . dNxQV
 
 This means that a query for a name that is not in a delegated TLD (e.g example.potato) will not be sent to the root servers - in fact, the resolver won't
 send any queries at all - it already knows that .potato doesn't exist (nothing
-exists between .post and .pr), and so, by definition, exmaple.foobar doesn't
+exists between .post and .pr), and so, by definition, example.foobar doesn't
 exist either.
 
 ## LocalRoot
@@ -70,13 +67,42 @@ that it **does** know, and will then cache all of the answers that it collected
 while resolving the name. This will include caching the answers for .com (for
 the TTL - 172800 seconds). This caching means that any additional queries for
 www.example.com, or foo.example.com, or **any other subdomains** of .com will
-not be sent to the root servers.
+not be sent to the root servers (until the TTL for .com expires).
 
-In the case that a query is sent for a name that
+The situation is a bit more complicated when the query is for a name that doesn't exist - the resolver will first check the cache for the answer. If it does not have the answer, it will query the authoritative servers for the domain (in the case of something like an undelegated TLD like foo.nonexistent this would be the root). Assuming that there is no QNAME Minimization or Aggressive NSEC, the resolver asks for the full name - foo.nonexistant. It gets back a response containing the response NXDOMAIN (no such domain) for the full name, and caches this for the negative TTL.
 
 
-### Todo
-Additional causes - write these up.
-  * [ ] Caching
-  * [ ] Local Root
-  * [ ] Local Authoritative
+Example of resolving a name that doesn't exist:
+
+```
+$ dig foo.nonexistant @b.root-servers.net
+
+; <<>> DiG 9.10.6 <<>> foo.nonexistant @b.root-servers.net
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NXDOMAIN, id: 395
+;; flags: qr aa rd; QUERY: 1, ANSWER: 0, AUTHORITY: 1, ADDITIONAL: 1
+
+;; QUESTION SECTION:
+;foo.nonexistant.		IN	A
+
+;; AUTHORITY SECTION:
+.			86400	IN	SOA	a.root-servers.net. nstld.verisign-grs.com. 2022042700 1800 900 604800 86400
+```
+
+The resolver will cache the NXDOMAIN response for the full name, and, if it gets a query for any other subdomain of .nonexistant (e.g: bar.nonexistant), it will have to query for that name as well (and so be seen at the root). In the case of QNAME Minimization or Aggressive NSEC though, the resolver does not have to query for the other subdomains of .nonexistant; with QNAME Minimization it will have cached the non-existence of .nonexistant, and in the case of Aggressive NSEC it doesn't even need to query for .nonexistant as it has cryptographic proof that it doesn't exist.
+
+## Local Authoritative
+One of the last major sources of information hiding is if the is a local resolver which is authoritative for a name. As an example, if an organization is using a local resolver to provide DNS services for a domain, it is not necessary to query the root servers for the domain. For example, a company using .corp within the organization (for example so that they can use accounting.corp as a name), any query for accounting.corp or foo.corp will be answered by the local resolver, and this will not be leaked into the public DNS. This is a very common deployment scenario, especially for Microsoft Active Directory.
+
+
+
+# Appendix A
+## Disclaimer
+Note that this is writeup has many oversimplifications. There are many more causes of information hiding in the DNS, the description of caching leaves out many important bits, etc. This document is intended to be a general overview of the causes of DNS information hiding, and not a comprehensive description of the DNS.
+
+## Todo
+Add sections:
+  * [x] Caching
+  * [x] Local Root
+  * [x] Local Authoritative
+  * [ ] Search Lists.
