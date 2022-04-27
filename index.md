@@ -1,10 +1,12 @@
 ---
 layout: home
 ---
-This is my quick reference site. It's designed for me to quickly be able to put up
+This is my quick reference site. It's a place for me to put up
 small bits of documentation, reminders to myself, quick snippets for cutting and
-pasting, and so on. Basically, for anything where it doesn't seem like it is
-worth adding it to a more fully featured CMS.
+pasting, and so on. Basically, anything that doesn't seem worth adding it to a more fully featured CMS.
 
-This site is built with [Jekyll](https://jekyllrb.com/) and the modified [Cayman-Blog](https://github.com/lorepirri/cayman-blog)
-theme.
+## Networking:
+- [JunOS PFE Programming Issues]({% post_url 2022-04-27-JUNOS-next-hop-resolution-failure %})
+
+## DNS:
+- [Losing Visibility into the DNS](% post_url 2022-02-25-Losing-Visibility-into-the-DNS %)

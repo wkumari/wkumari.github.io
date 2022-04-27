@@ -15,7 +15,7 @@ These are my quick notes on troubleshooting and fixing this.
 Note that the examples has been edited slightly to make it easier to read.
 
 # Scenario / description of issue
-Traffic coming in on `xe-1/0/1.0` destined for `192.0.2.48` and `192.0.2.49` on `xe-1/0/0.0` is being dropped. It isn't a firewall problem, and packets are definitely arriving at the router (trust me on this).
+Traffic coming in on `xe-1/0/1.0` destined for `192.0.2.48` and `192.0.2.49` on `xe-1/0/0.0` is being dropped. It isn't a firewall problem, and packets are d efinitely arriving at the router (trust me on this).
 
 Pinging `192.0.2.48` from the router works just fine:
 ```
