@@ -4,32 +4,33 @@ layout: post
 
 # Sources of DNS information hiding <!-- omit in toc -->
 {: .no_toc}
-One of the recurring discussions in the [NCAP](https://www.icann.org/en/announcements/details/icann-publishes-name-collision-analysis-project-ncap-study-2-documents-27-1-2022-en)
-work is what visibility one can get into DNS from the root servers.
 
-* TOC
+One of the recurring discussions in the ICANN [NCAP](https://www.icann.org/en/announcements/details/icann-publishes-name-collision-analysis-project-ncap-study-2-documents-27-1-2022-en)
+(Name Collision Analysis Project) is what relevant information about the global DNS namespace can be extracted from the root servers.
+
+Increasingly the DNS hides information, both to improve end user privacy as well as to increase performance and reliably.
+
 {:toc}
 
 ## QNAME Minimization
 [DNS Query Name Minimisation to Improve Privacy](https://datatracker.ietf.org/doc/rfc9156/)
-(originally published in 2016) only sends the minimum required part of the query name to the authoritative servers.
+(originally published in 2016), only sends the minimum required part of the query name to the authoritative servers.
 
+*Without* QNAME Minimization (assuming an empty cache), a recursive server will send the full query name (www.foo.example.com) to the root servers, and the full query name to the .com authoritative servers, and the full query name  to the example.com authoritative servers. This leaks potentially sensitive information about the query name to the root servers, and the .com servers. There is no reason that the root needs know anything further than the TLD, nor any reason that the .com servers need to know anything further than example.com.
 
-*Without* QNAME Minimization (assuming an empty cache), a recursive server will send the full query name (www.foo.example.com) to the root servers, and the full query name to the .com authoritative servers, and the full query name  to the example.com authoritative servers. This leaks a potentially sensitive information about the query name to the root servers, and the .com servers. There is no reason that the root needs know anything further than the TLD, nor any reason that the .com servers need to know anything further than example.com.
-
-With QNAME Minimization thw resolver limits the root query to only ask where .com is, and then it will ask the .com servers for the authoritative servers for example.com, before finally asking the example.com servers for the answer for www.foo.example.com.
+With QNAME Minimization the resolver limits the root query to only asking where .com is, and then it will ask the .com servers for the authoritative servers for example.com, before finally asking the example.com servers for the answer for www.foo.example.com.
 
 This is a privacy win, but elides information that might be useful for researchers, and may also have a negative impact on performance (e.g if resolving www.example.co.za, if the same servers serve both .co.za and .za this may result in an additional lookup).
 
 ## Aggressive NSEC
-[RFC 8198 - Aggressive Use of DNSSEC-Validated Cache](https://datatracker.ietf.org/doc/rfc8198/) increases performance, decreases and resource utilization on both authoritative and recursive servers, as well as improving privacy.
+[RFC 8198 - Aggressive Use of DNSSEC-Validated Cache](https://datatracker.ietf.org/doc/rfc8198/) increases performance, decreases resource utilization on both authoritative and recursive servers, and improves privacy.
 
 When talking about DNSSEC, people generally talk about proving that a specific record is "valid": that the answer 192.0.2.1 is the valid A record for www.example.com. What is less commonly discussed is that DNSSEC also provides a mechanism to cryptographically prove that a name does **not** exist, and it
 accomplishes this without having to do online signing operations.
 
 It accomplishes this seemingly magical feat using NSEC and NSEC3 records.
 The way that this works is that the zone contains a sorted list of all of the
-names that do exist, and then also signs the holes between these names.
+names that do exist and then also signs the holes between these names.
 
 Example:
 ```
@@ -65,7 +66,7 @@ in the cache, it will return it. If the answer is not already cached, the
 resolver will try and resolve the name, starting from the most specific answer
 that it **does** know, and will then cache all of the answers that it collected
 while resolving the name. This will include caching the answers for .com (for
-the TTL - 172800 seconds). This caching means that any additional queries for
+the TTL of 172800 seconds). This caching means that any additional queries for
 www.example.com, or foo.example.com, or **any other subdomains** of .com will
 not be sent to the root servers (until the TTL for .com expires).
 
@@ -89,12 +90,13 @@ $ dig foo.nonexistant @b.root-servers.net
 .			86400	IN	SOA	a.root-servers.net. nstld.verisign-grs.com. 2022042700 1800 900 604800 86400
 ```
 
-The resolver will cache the NXDOMAIN response for the full name, and, if it gets a query for any other subdomain of .nonexistant (e.g: bar.nonexistant), it will have to query for that name as well (and so be seen at the root). In the case of QNAME Minimization or Aggressive NSEC though, the resolver does not have to query for the other subdomains of .nonexistant; with QNAME Minimization it will have cached the non-existence of .nonexistant, and in the case of Aggressive NSEC it doesn't even need to query for .nonexistant as it has cryptographic proof that it doesn't exist.
+The resolver will cache the NXDOMAIN response for the full name, and, if it gets a query for any other subdomain of .nonexistant (e.g: bar.nonexistant), it will have to query for that name as well (and so be seen at the root). In the case of QNAME Minimization or Aggressive NSEC though, the resolver does not have to query for the other subdomains of .nonexistant. With QNAME Minimization, it will have cached the non-existence of .nonexistant; and, in the case of Aggressive NSEC, it doesn't even need to query for .nonexistant as it has cryptographic proof that it doesn't exist.
 
 ## Local Authoritative
-One of the last major sources of information hiding is if the is a local resolver which is authoritative for a name. As an example, if an organization is using a local resolver to provide DNS services for a domain, it is not necessary to query the root servers for the domain. For example, a company using .corp within the organization (for example so that they can use accounting.corp as a name), any query for accounting.corp or foo.corp will be answered by the local resolver, and this will not be leaked into the public DNS. This is a very common deployment scenario, especially for Microsoft Active Directory.
+One of the last major sources of information hiding is if there is a local resolver which is authoritative for a name. As an example, if an organization is using a local resolver to provide DNS services for a domain, it is not necessary to query the root servers for the domain. For example, a company using .corp within the organization (for example so that they can use accounting.corp as a name), any query for accounting.corp or foo.corp will be answered by the local resolver, and this will not be leaked into the public DNS. This is a very common deployment scenario, especially for Microsoft Active Directory.
 
-
+## Summary
+These are just a few of the mechanisms that hide information from DNS authoritative servers, and make it impossible to get a full picture of the DNS LANDSCAPE.
 
 # Appendix A
 ## Disclaimer
