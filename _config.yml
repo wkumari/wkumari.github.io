@@ -1,4 +1,9 @@
 theme: jekyll-theme-cayman
-title: Outsourcing my brain...
+title: 'Outsourcing my brain...'
+description: '... because otherwise I forget things...'
+author:
+  name: Warren Kumari
+  github: wkumari
+
 
 timezone: America/New_York
