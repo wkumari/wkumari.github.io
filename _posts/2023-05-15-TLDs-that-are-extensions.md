@@ -153,6 +153,8 @@ Here are the results:
 | xyz | ASCII RPG Maker Graphic Format |
 | zip | ZIP Compressed file archive |
 
+**Total: 139**
+
 
 
 Quick-n-dirty Python to generate this:
